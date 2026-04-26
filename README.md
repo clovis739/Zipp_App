@@ -1,50 +1,387 @@
-# Welcome to your Expo app 👋
+# ZIPP - DEVELOPMENT README
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Overview
 
-## Get started
+Zipp is a **cashless ride-hailing and delivery platform** built for African cities (starting with Buea, Limbe, and Kumba).
 
-1. Install dependencies
+The system includes:
 
-   ```bash
-   npm install
-   ```
+* Mobile App (Rider + Driver)
+* Admin Dashboard
+* Backend API
+* Wallet & Payment System (MoMo-first)
 
-2. Start the app
+Goal:
+Build a **scalable, production-ready platform** with strong architecture, clean code, and reliable money flow.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+# PROJECT STRUCTURE
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+This project uses a **monorepo architecture**:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+/zipp
+  /apps
+    /mobile        - React Native (Expo)
+    /admin         - React (Web dashboard)
+    /api           - Node.js backend
+  /packages
+    /ui            - Shared UI components
+    /types         - Shared TypeScript types
+    /utils         - Helpers
+  /infra           - Deployment configs
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+# TEAM RULES (VERY IMPORTANT)
 
-To learn more about developing your project with Expo, look at the following resources:
+### Git Workflow
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+* ALWAYS create a new branch:
 
-## Join the community
+  ```
+  feature/ride-booking
+  feature/wallet-topup
+  fix/driver-dispatch
+  ```
 
-Join our community of developers creating universal apps.
+* ALWAYS:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+  * Commit small changes
+  * Push frequently
+  * Open PR for review
+
+---
+
+# MOBILE APP STRUCTURE (React Native)
+
+```
+/apps/mobile
+  /src
+    /screens
+    /components
+    /features
+      /auth
+      /wallet
+      /trips
+      /delivery
+      /driver
+    /navigation
+    /store
+    /services
+```
+
+---
+
+# FEATURE-BASED STRUCTURE (IMPORTANT)
+
+Each feature must be isolated:
+
+```
+/features/wallet
+  WalletScreen.tsx
+  wallet.service.ts
+  wallet.store.ts
+  wallet.types.ts
+```
+
+---
+
+# BACKEND STRUCTURE (Node.js + Prisma)
+
+```
+/apps/api
+  /src
+    /modules
+      /auth
+      /user
+      /wallet
+      /trip
+      /delivery
+      /driver
+      /admin
+      /support
+    /common
+    /config
+    /middlewares
+```
+
+---
+
+# DATABASE (POSTGRESQL + PRISMA)
+
+### Core Models
+
+```
+User
+UserRole
+DriverProfile
+Vehicle
+Wallet
+WalletLedger
+Trip
+TripLog
+Delivery
+DeliveryLog
+DriverLocation
+Rating
+SupportTicket
+SupportMessage
+WithdrawalRequest
+OTPCode
+TwoFactorAuth
+AdminActionLog
+```
+
+---
+
+# WALLET SYSTEM (CRITICAL RULES)
+
+* NEVER update balance directly
+* ALWAYS use `wallet_ledger`
+
+### States:
+
+* Available
+* Frozen
+
+### Flow:
+
+1. Top-up - Pending
+2. Confirm - Available
+3. Book trip - Frozen
+4. Complete - Split
+5. Cancel - Refund
+
+---
+
+# API STRUCTURE
+
+### Auth
+
+```
+POST /auth/register
+POST /auth/login
+POST /auth/verify
+POST /auth/2fa
+```
+
+### Wallet
+
+```
+POST /wallet/top-up
+POST /wallet/withdraw
+GET /wallet/transactions
+```
+
+### Trips
+
+```
+POST /trips/request
+POST /trips/accept
+POST /trips/start
+POST /trips/complete
+```
+
+### Delivery
+
+```
+POST /deliveries/request
+POST /deliveries/complete
+```
+
+---
+
+# DELIVERY RULE (IMPORTANT)
+
+* ONLY one feature: **Delivery**
+* NO Logistics duplication
+
+### Modes:
+
+* Standard (1.0x)
+* Express (1.5x)
+
+---
+
+# DESIGN RULES
+
+* Follow Figma strictly
+* Use green theme: `#00C853`
+* No random UI changes
+* No unused screens
+
+---
+
+# COMPONENT RULES
+
+### Shared Components
+
+```
+/packages/ui
+```
+
+### Feature Components
+
+```
+/features/trips/components
+```
+
+---
+
+# REALTIME SYSTEM
+
+Using:
+
+* Socket.IO
+
+For:
+
+* Driver tracking
+* Trip updates
+* Delivery tracking
+
+---
+
+# SECURITY RULES
+
+* Use JWT (access + refresh)
+* Hash passwords (bcrypt)
+* Enable 2FA for all users
+* Protect admin routes
+
+---
+
+# PAYMENTS
+
+### Providers:
+
+* MTN MoMo
+* Orange Money
+
+### Rules:
+
+* Backend only handles API keys
+* Webhooks REQUIRED
+* Always verify payment
+
+---
+
+# ADMIN DASHBOARD
+
+Located in:
+
+```
+/apps/admin
+```
+
+### Features:
+
+* Users
+* Drivers
+* Trips
+* Deliveries
+* Wallet
+* Fraud
+* Support
+
+---
+
+# TESTING RULES
+
+Must test:
+
+* Auth
+* Wallet flow
+* Trip flow
+* Delivery flow
+* Payment flow
+* Admin actions
+
+---
+
+# GETTING STARTED
+
+### 1. Clone repo
+
+```
+git clone <repo>
+```
+
+### 2. Install
+
+```
+pnpm install
+```
+
+### 3. Run backend
+
+```
+pnpm dev:api
+```
+
+### 4. Run mobile
+
+```
+pnpm dev:mobile
+```
+
+### 5. Run admin
+
+```
+pnpm dev:admin
+```
+
+---
+
+# ENV VARIABLES
+
+Example:
+
+```
+DATABASE_URL=
+JWT_SECRET=
+MTN_MOMO_API_KEY=
+ORANGE_MONEY_CLIENT_ID=
+REDIS_URL=
+```
+
+---
+
+# IMPORTANT TEAM RULES
+
+* No dead buttons
+* No fake data in production
+* No direct DB balance edits
+* No skipping wallet logic
+* No exposing admin endpoints
+
+---
+
+# DEVELOPMENT PRIORITY ORDER
+
+1. Auth
+2. Wallet
+3. Trips
+4. Driver
+5. Delivery
+6. Admin
+7. Payments
+
+---
+
+# FINAL NOTE
+
+This is not just an app.
+
+It is a **financial system + transport system**
+
+If wallet logic breaks:
+You lose money
+
+If dispatch breaks:
+You lose users
+
+---
